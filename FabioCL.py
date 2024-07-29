@@ -11,8 +11,11 @@ archivo_csv = st.file_uploader("Sube tu archivo CSV", type="csv")
 
 if archivo_csv:
     try:
-        # Cargar los datos
-        data = pd.read_csv(archivo_csv)
+        # Cargar los datos con encoding y manejo de errores
+        data = pd.read_csv(archivo_csv, encoding='utf-8', error_bad_lines=False, warn_bad_lines=True)
+
+        # Limpiar los nombres de las columnas
+        data.columns = data.columns.str.strip()
 
         # Mostrar las primeras filas del dataset
         st.write(data.head())
@@ -27,6 +30,7 @@ if archivo_csv:
             plt.title(title)
             plt.xlabel(xlabel)
             plt.ylabel(ylabel)
+            plt.xticks(rotation=90)
             plt.grid(True)
             st.pyplot(plt.gcf())
             plt.close()

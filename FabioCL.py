@@ -17,6 +17,12 @@ if archivo_csv:
         # Limpiar los nombres de las columnas
         data.columns = data.columns.str.strip()
 
+        # Convertir las columnas relevantes a tipo numérico
+        numeric_cols = ['streams', 'in_spotify_playlists', 'danceability_%', 'energy_%', 'valence_%']
+        for col in numeric_cols:
+            if col in data.columns:
+                data[col] = pd.to_numeric(data[col], errors='coerce')
+
         # Limitar la cantidad de datos a mostrar
         max_rows = len(data)
         limit = st.slider('Número de filas a mostrar', min_value=10, max_value=max_rows, value=min(50, max_rows))

@@ -48,27 +48,27 @@ if archivo_csv:
             plt.close()
 
         # Gráfico de Streams a lo largo de las canciones (Barras)
-        plot_and_show(limited_data, 'track_name', 'streams', 'Spotify Streams per Track', 'Track', 'Streams', 'bar', 'coral')
+        plot_and_show(limited_data, 'track_name', 'streams', 'Número de Streams por Canción', 'Canción', 'Número de Streams', 'bar', 'coral')
 
-        # Gráfico de Popularidad de YouTube a lo largo de las canciones (Barras)
-        plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Popularity in Spotify Playlists', 'Track', 'Playlists', 'bar', 'orange')
+        # Gráfico de Popularidad en Playlists de Spotify (Barras)
+        plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Popularidad en Playlists de Spotify', 'Canción', 'Número de Playlists', 'bar', 'orange')
 
-        # Gráfico de Danceability de Spotify a lo largo de las canciones (Líneas)
-        plot_and_show(limited_data, 'track_name', 'danceability_%', 'Spotify Danceability per Track', 'Track', 'Danceability (%)', 'line', 'purple')
+        # Gráfico de Danceability de Spotify (Líneas)
+        plot_and_show(limited_data, 'track_name', 'danceability_%', 'Danceability de Spotify por Canción', 'Canción', 'Danceability (%)', 'line', 'purple')
 
-        # Gráfico de Energy de Spotify a lo largo de las canciones (Líneas)
-        plot_and_show(limited_data, 'track_name', 'energy_%', 'Spotify Energy per Track', 'Track', 'Energy (%)', 'line', 'blue')
+        # Gráfico de Energy de Spotify (Líneas)
+        plot_and_show(limited_data, 'track_name', 'energy_%', 'Energía de Spotify por Canción', 'Canción', 'Energía (%)', 'line', 'blue')
 
-        # Gráfico de Valence de Spotify a lo largo de las canciones (Líneas)
-        plot_and_show(limited_data, 'track_name', 'valence_%', 'Spotify Valence per Track', 'Track', 'Valence (%)', 'line', 'green')
+        # Gráfico de Valence de Spotify (Líneas)
+        plot_and_show(limited_data, 'track_name', 'valence_%', 'Valence de Spotify por Canción', 'Canción', 'Valence (%)', 'line', 'green')
 
         # Gráfico de distribución de Streams (Torta)
         st.subheader('Distribución de Streams')
-        plot_and_show(limited_data, 'track_name', 'streams', 'Distribution of Streams', 'Track', 'Streams', 'pie', sns.color_palette("viridis"))
+        plot_and_show(limited_data, 'track_name', 'streams', 'Distribución de Streams', 'Canción', 'Número de Streams', 'pie', sns.color_palette("viridis"))
 
         # Gráfico de distribución de Popularidad en Playlists (Torta)
         st.subheader('Distribución de Popularidad en Playlists')
-        plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Distribution of Playlist Popularity', 'Track', 'Playlists', 'pie', sns.color_palette("magma"))
+        plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Distribución de Popularidad en Playlists', 'Canción', 'Número de Playlists', 'pie', sns.color_palette("magma"))
 
     except pd.errors.EmptyDataError:
         st.error("El archivo está vacío. Por favor, verifique el contenido del archivo.")

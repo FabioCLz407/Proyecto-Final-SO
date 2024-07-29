@@ -11,8 +11,8 @@ from io import StringIO
 # Configuración de Streamlit
 st.title('Análisis de Datos de Spotify 2023')
 
-# URL del archivo CSV
-url = 'https://drive.google.com/file/d/18EWnM90OV5zUTzJRvUtXnM7qrFibKAxO/view?usp=sharing'  # Reemplaza con el enlace a tu archivo CSV
+# URL del archivo CSV en Google Drive
+url = 'https://drive.google.com/uc?id=18EWnM90OV5zUTzJRvUtXnM7qrFibKAxO'
 
 @st.cache_data
 def load_data(url):

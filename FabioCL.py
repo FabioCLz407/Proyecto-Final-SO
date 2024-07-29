@@ -64,19 +64,16 @@ if archivo_csv:
                     X = X.loc[common_indices]
                     Y = Y.loc[common_indices]
                     
-                    if len(X) > 1:  # Asegurarse de que hay suficientes datos para ajustar el modelo
-                        model = LinearRegression()
-                        model.fit(X, Y)
-                        predictions = model.predict(X)
-                        r2 = r2_score(Y, predictions)
-                        
-                        # Graficar línea de regresión
-                        sns.regplot(x=x, y=y, data=data, scatter=False, color='red')
-                        
-                        # Mostrar \( R^2 \)
-                        plt.title(f'{title}\n$R^2 = {r2:.2f}$')
-                    else:
-                        plt.title(f'{title}\nNo hay suficientes datos para calcular R^2')
+                    model = LinearRegression()
+                    model.fit(X, Y)
+                    predictions = model.predict(X)
+                    r2 = r2_score(Y, predictions)
+                    
+                    # Graficar línea de regresión
+                    sns.regplot(x=x, y=y, data=data, scatter=False, color='red')
+                    
+                    # Mostrar \( R^2 \)
+                    plt.title(f'{title}\n$R^2 = {r2:.2f}$')
                 else:
                     plt.title(title)
                     

@@ -31,16 +31,25 @@ if archivo_csv:
 
         # Función para graficar y mostrar gráficos en Streamlit
         def plot_and_show(data, x, y, title, xlabel, ylabel, plot_type='line', color='blue'):
-            plt.figure(figsize=(10, 6))
+            fig, ax = plt.subplots(1, 2, figsize=(15, 6))  # Crear figura y ejes para dos gráficos
             if plot_type == 'line':
-                sns.lineplot(x=x, y=y, data=data, color=color)
+                sns.lineplot(x=x, y=y, data=data, color=color, ax=ax[1])
+                ax[1].set_title(title)
+                ax[1].set_xlabel(xlabel)
+                ax[1].set_ylabel(ylabel)
+                ax[1].tick_params(axis='x', rotation=90)
+                ax[1].grid(True)
+                ax[0].axis('off')  # Desactivar el eje izquierdo para gráficos de líneas
             elif plot_type == 'bar':
-                sns.barplot(x=x, y=y, data=data, color=color)
+                sns.barplot(x=x, y=y, data=data, color=color, ax=ax[1])
+                ax[1].set_title(title)
+                ax[1].set_xlabel(xlabel)
+                ax[1].set_ylabel(ylabel)
+                ax[1].tick_params(axis='x', rotation=90)
+                ax[1].grid(True)
+                ax[0].axis('off')  # Desactivar el eje izquierdo para gráficos de barras
             elif plot_type == 'pie':
                 pie_data = data[[x, y]].groupby(x).sum()
-                fig, ax = plt.subplots(1, 2, figsize=(15, 6))
-                
-                # Graficar torta
                 pie_data.plot.pie(y=y, labels=pie_data.index, autopct='%1.1f%%', colors=sns.color_palette(color), ax=ax[1])
                 ax[1].set_title(title)
                 
@@ -50,11 +59,7 @@ if archivo_csv:
                 ax[0].set_title('Distribución de Valores')
                 ax[0].invert_yaxis()
 
-            plt.xlabel(xlabel)
-            plt.ylabel(ylabel)
-            plt.xticks(rotation=90)
-            plt.grid(True)
-            st.pyplot(fig)
+            st.pyplot(fig)  # Mostrar la figura completa
             plt.close()
 
         # Gráfico de Streams a lo largo de las canciones (Barras)

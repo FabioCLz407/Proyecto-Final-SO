@@ -30,26 +30,17 @@ if archivo_csv:
         st.write(limited_data)
 
         # Función para graficar y mostrar gráficos en Streamlit
-        def plot_and_show(data, x, y, title, xlabel, ylabel, plot_type='line', color='blue'):
-            fig, ax = plt.subplots(1, 2, figsize=(15, 6))  # Crear figura y ejes para dos gráficos
+        def plot_and_show(data, x, y, title, xlabel, ylabel, plot_type='line', color='blue', add_regression=False):
+            plt.figure(figsize=(18, 8))  # Ajustar tamaño de la figura
             if plot_type == 'line':
-                sns.lineplot(x=x, y=y, data=data, color=color, ax=ax[1])
-                ax[1].set_title(title)
-                ax[1].set_xlabel(xlabel)
-                ax[1].set_ylabel(ylabel)
-                ax[1].tick_params(axis='x', rotation=90)
-                ax[1].grid(True)
-                ax[0].axis('off')  # Desactivar el eje izquierdo para gráficos de líneas
+                sns.lineplot(x=x, y=y, data=data, color=color)
             elif plot_type == 'bar':
-                sns.barplot(x=x, y=y, data=data, color=color, ax=ax[1])
-                ax[1].set_title(title)
-                ax[1].set_xlabel(xlabel)
-                ax[1].set_ylabel(ylabel)
-                ax[1].tick_params(axis='x', rotation=90)
-                ax[1].grid(True)
-                ax[0].axis('off')  # Desactivar el eje izquierdo para gráficos de barras
+                sns.barplot(x=x, y=y, data=data, color=color)
             elif plot_type == 'pie':
                 pie_data = data[[x, y]].groupby(x).sum()
+                fig, ax = plt.subplots(1, 2, figsize=(18, 8))  # Crear figura y ejes para dos gráficos
+                
+                # Graficar torta
                 pie_data.plot.pie(y=y, labels=pie_data.index, autopct='%1.1f%%', colors=sns.color_palette(color), ax=ax[1])
                 ax[1].set_title(title)
                 
@@ -58,8 +49,19 @@ if archivo_csv:
                 pie_data.reset_index().rename(columns={x: 'Categoría', y: 'Valor'}).plot(kind='barh', x='Categoría', y='Valor', ax=ax[0], color=color)
                 ax[0].set_title('Distribución de Valores')
                 ax[0].invert_yaxis()
-
-            st.pyplot(fig)  # Mostrar la figura completa
+            elif plot_type == 'scatter':
+                sns.scatterplot(x=x, y=y, data=data, color=color)
+                if add_regression:
+                    sns.regplot(x=x, y=y, data=data, scatter=False, color='red')
+                plt.title(title)
+                plt.xlabel(xlabel)
+                plt.ylabel(ylabel)
+                plt.grid(True)
+            plt.xlabel(xlabel)
+            plt.ylabel(ylabel)
+            plt.xticks(rotation=90)
+            plt.grid(True)
+            st.pyplot(plt.gcf())
             plt.close()
 
         # Gráfico de Streams a lo largo de las canciones (Barras)
@@ -84,6 +86,10 @@ if archivo_csv:
         # Gráfico de distribución de Popularidad en Playlists (Torta)
         st.subheader('Distribución de Popularidad en Playlists')
         plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Distribución de Popularidad en Playlists', 'Canción', 'Número de Playlists', 'pie', sns.color_palette("magma"))
+
+        # Gráfico de relación lineal entre streams y danceability
+        st.subheader('Relación entre Streams y Danceability')
+        plot_and_show(limited_data, 'streams', 'danceability_%', 'Relación entre Streams y Danceability', 'Número de Streams', 'Danceability (%)', 'scatter', 'cyan', True)
 
     except pd.errors.EmptyDataError:
         st.error("El archivo está vacío. Por favor, verifique el contenido del archivo.")

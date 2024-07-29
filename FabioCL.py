@@ -77,37 +77,32 @@ try:
         st.write(description)
 
     # Gráfico de Streams a lo largo de las canciones (Barras)
-    plot_and_show(limited_data, 'track_name', 'streams', 'Distribución de Streams por Canción', 'Canción', 'Streams', 'bar', 'coral')
+    plot_and_show(limited_data, 'track_name', 'streams', 'Distribución de Streams por Canción', 'Canción', 'Streams', 'bar', 'coral', description='Este gráfico muestra la distribución del número de streams para cada canción. Las canciones con más streams están representadas con barras más altas.')
 
     # Gráfico de Popularidad de YouTube a lo largo de las canciones (Barras)
-    plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Distribución de Popularidad en Playlists', 'Canción', 'Número de Playlists', 'bar', 'orange')
+    plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Distribución de Popularidad en Playlists', 'Canción', 'Número de Playlists', 'bar', 'orange', description='Este gráfico muestra el número de playlists de Spotify en las que cada canción aparece. Las canciones más populares en playlists tienen barras más altas.')
 
     # Gráfico de Danceability de Spotify a lo largo de las canciones (Líneas)
-    plot_and_show(limited_data, 'track_name', 'danceability_%', 'Distribución de Danceability por Canción', 'Canción', 'Danceability (%)', 'line', 'purple')
+    plot_and_show(limited_data, 'track_name', 'danceability_%', 'Distribución de Danceability por Canción', 'Canción', 'Danceability (%)', 'line', 'purple', description='Este gráfico muestra el porcentaje de danceability para cada canción. Las canciones con mayor danceability tienen valores más altos.')
 
     # Gráfico de Energy de Spotify a lo largo de las canciones (Líneas)
-    plot_and_show(limited_data, 'track_name', 'energy_%', 'Distribución de Energy por Canción', 'Canción', 'Energy (%)', 'line', 'blue')
+    plot_and_show(limited_data, 'track_name', 'energy_%', 'Distribución de Energy por Canción', 'Canción', 'Energy (%)', 'line', 'blue', description='Este gráfico muestra el porcentaje de energía para cada canción. Las canciones con mayor energía tienen valores más altos.')
 
     # Gráfico de Valence de Spotify a lo largo de las canciones (Líneas)
-    plot_and_show(limited_data, 'track_name', 'valence_%', 'Distribución de Valence por Canción', 'Canción', 'Valence (%)', 'line', 'green')
+    plot_and_show(limited_data, 'track_name', 'valence_%', 'Distribución de Valence por Canción', 'Canción', 'Valence (%)', 'line', 'green', description='Este gráfico muestra el porcentaje de valence para cada canción. Las canciones con mayor valence tienen valores más altos.')
 
     # Gráfico de torta para Popularidad en Playlists
-    plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Distribución de Popularidad en Playlists', 'Canción', 'Número de Playlists', 'pie', sns.color_palette("plasma"))
+    plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Distribución de Popularidad en Playlists', 'Canción', 'Número de Playlists', 'pie', sns.color_palette("plasma"), description='Este gráfico de torta muestra la proporción de cada canción en las playlists de Spotify. Las canciones más representadas en playlists tienen porciones más grandes.')
 
-    # Gráfico de regresión lineal personalizada
-    st.subheader('Regresión Lineal Personalizada')
-    st.write("Selecciona dos columnas numéricas para realizar una regresión lineal y ver la relación entre ellas.")
+    # Regresión Lineal entre "streams" y "danceability_%"
+    st.subheader('Regresión Lineal entre Streams y Danceability')
+    st.write("A continuación, se muestra una regresión lineal que analiza la relación entre el número de streams y el porcentaje de danceability de las canciones.")
 
-    columnas = limited_data.select_dtypes(include=[np.number]).columns.tolist()
-    x_col = st.selectbox('Selecciona la columna X', columnas)
-    y_col = st.selectbox('Selecciona la columna Y', columnas)
+    if pd.api.types.is_numeric_dtype(limited_data['streams']) and pd.api.types.is_numeric_dtype(limited_data['danceability_%']):
+        plot_and_show(limited_data, 'danceability_%', 'streams', 'Regresión Lineal entre Danceability y Streams', 'Danceability (%)', 'Streams', 'scatter', 'blue', add_regression=True, description='Este gráfico muestra la relación entre el porcentaje de danceability y el número de streams. La línea roja representa la regresión lineal, y el valor $R^2$ indica qué tan bien se ajusta el modelo a los datos.')
+    else:
+        st.error("Las columnas 'streams' y 'danceability_%' deben contener datos numéricos.")
 
-    if st.button('Generar Regresión Lineal'):
-        if pd.api.types.is_numeric_dtype(limited_data[x_col]) and pd.api.types.is_numeric_dtype(limited_data[y_col]):
-            st.write(f'Regresión lineal entre {x_col} y {y_col}')
-            plot_and_show(limited_data, x_col, y_col, f'Relación entre {x_col} y {y_col}', x_col, y_col, 'scatter', 'blue', add_regression=True, description=f'Relación de regresión lineal entre {x_col} y {y_col}.')
-        else:
-            st.error("Ambas columnas seleccionadas deben contener datos numéricos.")
 except requests.RequestException as e:
     st.error(f"Ocurrió un error al cargar el archivo: {e}")
 except pd.errors.EmptyDataError:

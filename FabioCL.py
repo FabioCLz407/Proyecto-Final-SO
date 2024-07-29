@@ -38,13 +38,23 @@ if archivo_csv:
                 sns.barplot(x=x, y=y, data=data, color=color)
             elif plot_type == 'pie':
                 pie_data = data[[x, y]].groupby(x).sum()
-                pie_data.plot.pie(y=y, labels=pie_data.index, autopct='%1.1f%%', colors=sns.color_palette(color))
-            plt.title(title)
+                fig, ax = plt.subplots(1, 2, figsize=(15, 6))
+                
+                # Graficar torta
+                pie_data.plot.pie(y=y, labels=pie_data.index, autopct='%1.1f%%', colors=sns.color_palette(color), ax=ax[1])
+                ax[1].set_title(title)
+                
+                # Mostrar lista al lado de la torta
+                ax[0].axis('off')
+                pie_data.reset_index().rename(columns={x: 'Categoría', y: 'Valor'}).plot(kind='barh', x='Categoría', y='Valor', ax=ax[0], color=color)
+                ax[0].set_title('Distribución de Valores')
+                ax[0].invert_yaxis()
+
             plt.xlabel(xlabel)
             plt.ylabel(ylabel)
             plt.xticks(rotation=90)
             plt.grid(True)
-            st.pyplot(plt.gcf())
+            st.pyplot(fig)
             plt.close()
 
         # Gráfico de Streams a lo largo de las canciones (Barras)

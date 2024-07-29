@@ -31,11 +31,7 @@ if archivo_csv:
         limited_data = data.head(limit)
         st.write(limited_data)
 
-        # Seleccionar columnas para la regresión lineal
-        st.sidebar.subheader('Regresión Lineal')
-        x_col = st.sidebar.selectbox('Selecciona la columna para el eje X', numeric_cols)
-        y_col = st.sidebar.selectbox('Selecciona la columna para el eje Y', numeric_cols)
-
+        # Función para graficar y mostrar gráficos en Streamlit
         def plot_and_show(data, x, y, title, xlabel, ylabel, plot_type='line', color='blue', add_regression=False):
             plt.figure(figsize=(18, 8))  # Ajustar tamaño de la figura
             if plot_type == 'line':
@@ -89,6 +85,34 @@ if archivo_csv:
                 plt.grid(True)
             st.pyplot(plt.gcf())
             plt.close()
+
+        # Gráfico de Streams a lo largo de las canciones (Barras)
+        plot_and_show(limited_data, 'track_name', 'streams', 'Número de Streams por Canción', 'Canción', 'Número de Streams', 'bar', 'coral')
+
+        # Gráfico de Popularidad en Playlists de Spotify (Barras)
+        plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Popularidad en Playlists de Spotify', 'Canción', 'Número de Playlists', 'bar', 'orange')
+
+        # Gráfico de Danceability de Spotify (Líneas)
+        plot_and_show(limited_data, 'track_name', 'danceability_%', 'Danceability de Spotify por Canción', 'Canción', 'Danceability (%)', 'line', 'purple')
+
+        # Gráfico de Energy de Spotify (Líneas)
+        plot_and_show(limited_data, 'track_name', 'energy_%', 'Energía de Spotify por Canción', 'Canción', 'Energía (%)', 'line', 'blue')
+
+        # Gráfico de Valence de Spotify (Líneas)
+        plot_and_show(limited_data, 'track_name', 'valence_%', 'Valence de Spotify por Canción', 'Canción', 'Valence (%)', 'line', 'green')
+
+        # Gráfico de distribución de Streams (Torta)
+        st.subheader('Distribución de Streams')
+        plot_and_show(limited_data, 'track_name', 'streams', 'Distribución de Streams', 'Canción', 'Número de Streams', 'pie', sns.color_palette("viridis"))
+
+        # Gráfico de distribución de Popularidad en Playlists (Torta)
+        st.subheader('Distribución de Popularidad en Playlists')
+        plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Distribución de Popularidad en Playlists', 'Canción', 'Número de Playlists', 'pie', sns.color_palette("magma"))
+
+        # Seleccionar columnas para la regresión lineal
+        st.sidebar.subheader('Regresión Lineal')
+        x_col = st.sidebar.selectbox('Selecciona la columna para el eje X', numeric_cols)
+        y_col = st.sidebar.selectbox('Selecciona la columna para el eje Y', numeric_cols)
 
         # Gráfico de relación lineal entre columnas seleccionadas
         if x_col and y_col:

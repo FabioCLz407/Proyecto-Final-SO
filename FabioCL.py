@@ -4,142 +4,109 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import r2_score
+import numpy as np
+import requests
+from io import StringIO
 
 # Configuración de Streamlit
 st.title('Análisis de Datos de Spotify 2023')
 
-# Cargar el archivo CSV usando el cargador de archivos de Streamlit
-archivo_csv = st.file_uploader("Sube tu archivo CSV", type="csv")
+# URL del archivo CSV
+url = 'https://enlace-a-tu-archivo.csv'  # Reemplaza con el enlace a tu archivo CSV
 
-if archivo_csv:
-    try:
-        # Cargar los datos con encoding y manejo de errores
-        data = pd.read_csv(archivo_csv, encoding='latin1', on_bad_lines='skip')
+@st.cache_data
+def load_data(url):
+    response = requests.get(url)
+    response.raise_for_status()  # Lanza un error si la solicitud falla
+    data = pd.read_csv(StringIO(response.text), encoding='latin1', on_bad_lines='skip')
+    return data
 
-        # Limpiar los nombres de las columnas
-        data.columns = data.columns.str.strip()
+# Cargar los datos desde la URL
+try:
+    data = load_data(url)
 
-        # Convertir las columnas relevantes a tipo numérico
-        numeric_cols = ['streams', 'in_spotify_playlists', 'danceability_%', 'energy_%', 'valence_%']
-        for col in numeric_cols:
-            if col in data.columns:
-                data[col] = pd.to_numeric(data[col], errors='coerce')
+    # Limpiar los nombres de las columnas
+    data.columns = data.columns.str.strip()
 
-        # Limitar la cantidad de datos a mostrar
-        max_rows = len(data)
-        limit = st.slider('Número de filas a mostrar', min_value=10, max_value=max_rows, value=min(50, max_rows))
-        limited_data = data.head(limit)
-        st.write(limited_data)
+    # Mostrar las primeras filas del dataset
+    st.write(data.head())
 
-        # Función para graficar y mostrar gráficos en Streamlit
-        def plot_and_show(data, x, y, title, xlabel, ylabel, plot_type='line', color='blue', add_regression=False, description=None):
-            plt.figure(figsize=(18, 8))  # Ajustar tamaño de la figura
-            if plot_type == 'line':
-                sns.lineplot(x=x, y=y, data=data, color=color)
-            elif plot_type == 'bar':
-                sns.barplot(x=x, y=y, data=data, color=color)
-            elif plot_type == 'pie':
-                pie_data = data[[x, y]].groupby(x).sum()
-                fig, ax = plt.subplots(1, 2, figsize=(18, 8))  # Crear figura y ejes para dos gráficos
-                
-                # Graficar torta
-                pie_data.plot.pie(y=y, labels=pie_data.index, autopct='%1.1f%%', colors=sns.color_palette(color), ax=ax[1])
-                ax[1].set_title(title)
-                
-                # Mostrar lista al lado de la torta
-                ax[0].axis('off')
-                pie_data.reset_index().rename(columns={x: 'Categoría', y: 'Valor'}).plot(kind='barh', x='Categoría', y='Valor', ax=ax[0], color=color)
-                ax[0].set_title('Distribución de Valores')
-                ax[0].invert_yaxis()
-            elif plot_type == 'scatter':
-                sns.scatterplot(x=x, y=y, data=data, color=color)
-                
-                if add_regression:
-                    # Ajuste de regresión lineal
-                    X = data[[x]].dropna()
-                    Y = data[[y]].dropna()
-                    
-                    # Asegurarse de que X y Y tienen el mismo tamaño
-                    common_indices = X.index.intersection(Y.index)
-                    X = X.loc[common_indices]
-                    Y = Y.loc[common_indices]
-                    
-                    if len(X) > 1:  # Asegurarse de que hay suficientes datos para ajustar el modelo
-                        model = LinearRegression()
-                        model.fit(X, Y)
-                        predictions = model.predict(X)
-                        r2 = r2_score(Y, predictions)
-                        
-                        # Graficar línea de regresión
-                        sns.regplot(x=x, y=y, data=data, scatter=False, color='red')
-                        
-                        # Mostrar \( R^2 \)
-                        plt.title(f'{title}\n$R^2 = {r2:.2f}$')
-                    else:
-                        plt.title(f'{title}\nNo hay suficientes datos para calcular R^2')
-                else:
-                    plt.title(title)
-                    
-                plt.xlabel(xlabel)
-                plt.ylabel(ylabel)
-                plt.grid(True)
-            
-            # Agregar descripción si se proporciona
-            if description:
-                plt.figtext(0.5, -0.1, description, wrap=True, horizontalalignment='center', fontsize=12)
-                
-            st.pyplot(plt.gcf())
-            plt.close()
+    # Limitar el número de filas para evitar sobrecarga
+    limited_data = data.head(30)
 
-        # Gráfico de Streams a lo largo de las canciones (Barras)
-        st.subheader('Número de Streams por Canción')
-        st.write("Este gráfico muestra el número total de streams para cada canción. Es útil para ver qué canciones han sido más populares en términos de streams.")
-        plot_and_show(limited_data, 'track_name', 'streams', 'Número de Streams por Canción', 'Canción', 'Número de Streams', 'bar', 'coral')
+    # Función para graficar y mostrar gráficos en Streamlit
+    def plot_and_show(data, x, y, title, xlabel, ylabel, plot_type='line', color='blue', add_regression=False, description=''):
+        plt.figure(figsize=(12, 8))
+        if plot_type == 'line':
+            sns.lineplot(x=x, y=y, data=data, color=color)
+        elif plot_type == 'bar':
+            sns.barplot(x=x, y=y, data=data, color=color)
+        elif plot_type == 'scatter':
+            sns.scatterplot(x=x, y=y, data=data, color=color)
+            if add_regression:
+                x_values = data[x].values.reshape(-1, 1)
+                y_values = data[y].values
+                model = LinearRegression()
+                model.fit(x_values, y_values)
+                y_pred = model.predict(x_values)
+                r2 = r2_score(y_values, y_pred)
+                plt.plot(data[x], y_pred, color='red')
+                plt.text(0.05, 0.95, f'$R^2$: {r2:.2f}', transform=plt.gca().transAxes, fontsize=12, verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.5))
+        elif plot_type == 'pie':
+            data_to_plot = data.groupby(x)[y].sum().reset_index()
+            fig, ax = plt.subplots(figsize=(10, 6))
+            wedges, texts, autotexts = ax.pie(data_to_plot[y], labels=data_to_plot[x], autopct='%1.1f%%', colors=color)
+            ax.legend(wedges, data_to_plot[x], title=x, loc='center left', bbox_to_anchor=(1, 0, 0.5, 1))
+            plt.title(title)
+            plt.axis('equal')
+            st.pyplot(fig)
+            return
+        plt.title(title)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        plt.xticks(rotation=90)
+        plt.grid(True)
+        st.pyplot(plt.gcf())
+        plt.close()
 
-        # Gráfico de Popularidad en Playlists de Spotify (Barras)
-        st.subheader('Popularidad en Playlists de Spotify')
-        st.write("Este gráfico muestra la popularidad de cada canción en las playlists de Spotify. Permite ver cuáles canciones han sido incluidas en más playlists.")
-        plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Popularidad en Playlists de Spotify', 'Canción', 'Número de Playlists', 'bar', 'orange')
+        # Añadir descripción
+        st.write(description)
 
-        # Gráfico de Danceability de Spotify (Líneas)
-        st.subheader('Danceability de Spotify por Canción')
-        st.write("Este gráfico muestra el porcentaje de 'danceability' para cada canción, que indica qué tan bailables son las canciones según Spotify.")
-        plot_and_show(limited_data, 'track_name', 'danceability_%', 'Danceability de Spotify por Canción', 'Canción', 'Danceability (%)', 'line', 'purple')
+    # Gráfico de Streams a lo largo de las canciones (Barras)
+    plot_and_show(limited_data, 'track_name', 'streams', 'Distribución de Streams por Canción', 'Canción', 'Streams', 'bar', 'coral')
 
-        # Gráfico de Energy de Spotify (Líneas)
-        st.subheader('Energía de Spotify por Canción')
-        st.write("Este gráfico muestra el porcentaje de 'energy' para cada canción, que mide la energía que transmite la canción según Spotify.")
-        plot_and_show(limited_data, 'track_name', 'energy_%', 'Energía de Spotify por Canción', 'Canción', 'Energía (%)', 'line', 'blue')
+    # Gráfico de Popularidad de YouTube a lo largo de las canciones (Barras)
+    plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Distribución de Popularidad en Playlists', 'Canción', 'Número de Playlists', 'bar', 'orange')
 
-        # Gráfico de Valence de Spotify (Líneas)
-        st.subheader('Valence de Spotify por Canción')
-        st.write("Este gráfico muestra el porcentaje de 'valence' para cada canción, que indica el estado de ánimo general de la canción según Spotify.")
-        plot_and_show(limited_data, 'track_name', 'valence_%', 'Valence de Spotify por Canción', 'Canción', 'Valence (%)', 'line', 'green')
+    # Gráfico de Danceability de Spotify a lo largo de las canciones (Líneas)
+    plot_and_show(limited_data, 'track_name', 'danceability_%', 'Distribución de Danceability por Canción', 'Canción', 'Danceability (%)', 'line', 'purple')
 
-        # Gráfico de distribución de Streams (Torta)
-        st.subheader('Distribución de Streams')
-        st.write("Este gráfico de torta muestra la distribución de streams entre diferentes canciones. Permite visualizar qué canciones tienen una mayor proporción de streams.")
-        plot_and_show(limited_data, 'track_name', 'streams', 'Distribución de Streams', 'Canción', 'Número de Streams', 'pie', sns.color_palette("viridis"))
+    # Gráfico de Energy de Spotify a lo largo de las canciones (Líneas)
+    plot_and_show(limited_data, 'track_name', 'energy_%', 'Distribución de Energy por Canción', 'Canción', 'Energy (%)', 'line', 'blue')
 
-        # Gráfico de distribución de Popularidad en Playlists (Torta)
-        st.subheader('Distribución de Popularidad en Playlists')
-        st.write("Este gráfico de torta muestra la distribución de la popularidad en playlists entre diferentes canciones. Ayuda a identificar las canciones que tienen una mayor representación en las playlists.")
-        plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Distribución de Popularidad en Playlists', 'Canción', 'Número de Playlists', 'pie', sns.color_palette("plasma"))
+    # Gráfico de Valence de Spotify a lo largo de las canciones (Líneas)
+    plot_and_show(limited_data, 'track_name', 'valence_%', 'Distribución de Valence por Canción', 'Canción', 'Valence (%)', 'line', 'green')
 
-        # Gráfico de regresión lineal personalizada
-        st.subheader('Regresión Lineal Personalizada')
-        st.write("Selecciona dos columnas para realizar una regresión lineal y ver la relación entre ellas.")
+    # Gráfico de torta para Popularidad en Playlists
+    plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Distribución de Popularidad en Playlists', 'Canción', 'Número de Playlists', 'pie', sns.color_palette("plasma"))
 
-        columnas = limited_data.columns.tolist()
-        x_col = st.selectbox('Selecciona la columna X', columnas)
-        y_col = st.selectbox('Selecciona la columna Y', columnas)
+    # Gráfico de regresión lineal personalizada
+    st.subheader('Regresión Lineal Personalizada')
+    st.write("Selecciona dos columnas para realizar una regresión lineal y ver la relación entre ellas.")
 
-        if st.button('Generar Regresión Lineal'):
+    columnas = limited_data.columns.tolist()
+    x_col = st.selectbox('Selecciona la columna X', columnas)
+    y_col = st.selectbox('Selecciona la columna Y', columnas)
+
+    if st.button('Generar Regresión Lineal'):
+        if pd.api.types.is_numeric_dtype(limited_data[x_col]) and pd.api.types.is_numeric_dtype(limited_data[y_col]):
             st.write(f'Regresión lineal entre {x_col} y {y_col}')
             plot_and_show(limited_data, x_col, y_col, f'Relación entre {x_col} y {y_col}', x_col, y_col, 'scatter', 'blue', add_regression=True, description=f'Relación de regresión lineal entre {x_col} y {y_col}.')
-    except pd.errors.EmptyDataError:
-        st.error("El archivo está vacío. Por favor, verifique el contenido del archivo.")
-    except Exception as e:
-        st.error(f"Ocurrió un error al procesar el archivo: {e}")
-else:
-    st.info("Por favor, sube un archivo CSV para comenzar.")
+        else:
+            st.error("Ambas columnas seleccionadas deben contener datos numéricos.")
+except requests.RequestException as e:
+    st.error(f"Ocurrió un error al cargar el archivo: {e}")
+except pd.errors.EmptyDataError:
+    st.error("El archivo está vacío. Por favor, verifique el contenido del archivo.")
+except Exception as e:
+    st.error(f"Ocurrió un error al procesar el archivo: {e}")

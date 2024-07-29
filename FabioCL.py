@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Configuración de Streamlit
-st.title('Análisis de Datos de Salud y Economía')
+st.title('Análisis de Datos de Spotify y YouTube')
 
 # Cargar el archivo CSV usando el cargador de archivos de Streamlit
 archivo_csv = st.file_uploader("Sube tu archivo CSV", type="csv")
@@ -31,23 +31,23 @@ if archivo_csv:
             st.pyplot(plt.gcf())
             plt.close()
 
-        # Gráfico de Expectativa de Vida a lo largo de los años (Líneas)
-        plot_and_show(data, 'Year', 'Life expectancy ', 'Life Expectancy Over the Years', 'Year', 'Life Expectancy', 'line', 'teal')
+        # Gráfico de Visualizaciones de YouTube a lo largo de las canciones (Barras)
+        plot_and_show(data, 'Track', 'Views', 'YouTube Views per Track', 'Track', 'Views', 'bar', 'coral')
 
-        # Gráfico de Mortalidad Adulta a lo largo de los años (Barras)
-        plot_and_show(data, 'Year', 'Adult Mortality', 'Adult Mortality Over the Years', 'Year', 'Adult Mortality', 'bar', 'coral')
+        # Gráfico de Likes de YouTube a lo largo de las canciones (Barras)
+        plot_and_show(data, 'Track', 'Likes', 'YouTube Likes per Track', 'Track', 'Likes', 'bar', 'orange')
 
-        # Gráfico de Muertes Infantiles a lo largo de los años (Líneas)
-        plot_and_show(data, 'Year', 'infant deaths', 'Infant Deaths Over the Years', 'Year', 'Infant Deaths', 'line', 'green')
+        # Gráfico de Comentarios de YouTube a lo largo de las canciones (Barras)
+        plot_and_show(data, 'Track', 'Comments', 'YouTube Comments per Track', 'Track', 'Comments', 'bar', 'green')
 
-        # Gráfico de Consumo de Alcohol a lo largo de los años (Barras)
-        plot_and_show(data, 'Year', 'Alcohol', 'Alcohol Consumption Over the Years', 'Year', 'Alcohol Consumption', 'bar', 'orange')
+        # Gráfico de Streams de Spotify a lo largo de las canciones (Líneas)
+        plot_and_show(data, 'Track', 'Stream', 'Spotify Streams per Track', 'Track', 'Streams', 'line', 'teal')
 
-        # Gráfico de PIB a lo largo de los años (Líneas)
-        plot_and_show(data, 'Year', 'GDP', 'GDP Over the Years', 'Year', 'GDP', 'line', 'purple')
+        # Gráfico de Danceability de Spotify a lo largo de las canciones (Líneas)
+        plot_and_show(data, 'Track', 'Danceability', 'Spotify Danceability per Track', 'Track', 'Danceability', 'line', 'purple')
 
-        # Gráfico de Escolaridad a lo largo de los años (Barras)
-        plot_and_show(data, 'Year', 'Schooling', 'Schooling Over the Years', 'Year', 'Schooling', 'bar', 'blue')
+        # Gráfico de Energy de Spotify a lo largo de las canciones (Líneas)
+        plot_and_show(data, 'Track', 'Energy', 'Spotify Energy per Track', 'Track', 'Energy', 'line', 'blue')
 
     except pd.errors.EmptyDataError:
         st.error("El archivo está vacío. Por favor, verifique el contenido del archivo.")

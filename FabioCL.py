@@ -18,8 +18,10 @@ if archivo_csv:
         data.columns = data.columns.str.strip()
 
         # Limitar la cantidad de datos a mostrar
-        limit = st.slider('Número de filas a mostrar', min_value=10, max_value=len(data), value=50)
-        st.write(data.head(limit))
+        max_rows = len(data)
+        limit = st.slider('Número de filas a mostrar', min_value=10, max_value=max_rows, value=min(50, max_rows))
+        limited_data = data.head(limit)
+        st.write(limited_data)
 
         # Función para graficar y mostrar gráficos en Streamlit
         def plot_and_show(data, x, y, title, xlabel, ylabel, plot_type='line', color='blue'):
@@ -29,7 +31,8 @@ if archivo_csv:
             elif plot_type == 'bar':
                 sns.barplot(x=x, y=y, data=data, color=color)
             elif plot_type == 'pie':
-                data.plot.pie(y=y, labels=data[x], autopct='%1.1f%%', colors=sns.color_palette(color))
+                pie_data = data[[x, y]].groupby(x).sum()
+                pie_data.plot.pie(y=y, labels=pie_data.index, autopct='%1.1f%%', colors=sns.color_palette(color))
             plt.title(title)
             plt.xlabel(xlabel)
             plt.ylabel(ylabel)
@@ -39,27 +42,27 @@ if archivo_csv:
             plt.close()
 
         # Gráfico de Streams a lo largo de las canciones (Barras)
-        plot_and_show(data.head(limit), 'track_name', 'streams', 'Spotify Streams per Track', 'Track', 'Streams', 'bar', 'coral')
+        plot_and_show(limited_data, 'track_name', 'streams', 'Spotify Streams per Track', 'Track', 'Streams', 'bar', 'coral')
 
         # Gráfico de Popularidad de YouTube a lo largo de las canciones (Barras)
-        plot_and_show(data.head(limit), 'track_name', 'in_spotify_playlists', 'Popularity in Spotify Playlists', 'Track', 'Playlists', 'bar', 'orange')
+        plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Popularity in Spotify Playlists', 'Track', 'Playlists', 'bar', 'orange')
 
         # Gráfico de Danceability de Spotify a lo largo de las canciones (Líneas)
-        plot_and_show(data.head(limit), 'track_name', 'danceability_%', 'Spotify Danceability per Track', 'Track', 'Danceability (%)', 'line', 'purple')
+        plot_and_show(limited_data, 'track_name', 'danceability_%', 'Spotify Danceability per Track', 'Track', 'Danceability (%)', 'line', 'purple')
 
         # Gráfico de Energy de Spotify a lo largo de las canciones (Líneas)
-        plot_and_show(data.head(limit), 'track_name', 'energy_%', 'Spotify Energy per Track', 'Track', 'Energy (%)', 'line', 'blue')
+        plot_and_show(limited_data, 'track_name', 'energy_%', 'Spotify Energy per Track', 'Track', 'Energy (%)', 'line', 'blue')
 
         # Gráfico de Valence de Spotify a lo largo de las canciones (Líneas)
-        plot_and_show(data.head(limit), 'track_name', 'valence_%', 'Spotify Valence per Track', 'Track', 'Valence (%)', 'line', 'green')
+        plot_and_show(limited_data, 'track_name', 'valence_%', 'Spotify Valence per Track', 'Track', 'Valence (%)', 'line', 'green')
 
         # Gráfico de distribución de Streams (Torta)
         st.subheader('Distribución de Streams')
-        plot_and_show(data.head(limit), 'track_name', 'streams', 'Distribution of Streams', 'Track', 'Streams', 'pie', sns.color_palette("viridis"))
+        plot_and_show(limited_data, 'track_name', 'streams', 'Distribution of Streams', 'Track', 'Streams', 'pie', sns.color_palette("viridis"))
 
         # Gráfico de distribución de Popularidad en Playlists (Torta)
         st.subheader('Distribución de Popularidad en Playlists')
-        plot_and_show(data.head(limit), 'track_name', 'in_spotify_playlists', 'Distribution of Playlist Popularity', 'Track', 'Playlists', 'pie', sns.color_palette("magma"))
+        plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Distribution of Playlist Popularity', 'Track', 'Playlists', 'pie', sns.color_palette("magma"))
 
     except pd.errors.EmptyDataError:
         st.error("El archivo está vacío. Por favor, verifique el contenido del archivo.")

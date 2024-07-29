@@ -89,11 +89,11 @@ plot_and_show(limited_data, 'track_name', 'valence_%', 'Distribución de Valence
 # Gráfico de torta para Popularidad en Playlists
 plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Distribución de Popularidad en Playlists', 'Canción', 'Número de Playlists', 'pie', sns.color_palette("plasma"), description='Este gráfico de torta muestra la proporción de cada canción en las playlists de Spotify. Las canciones más representadas en playlists tienen porciones más grandes.')
 
-# Regresión Lineal entre "streams" y "danceability_%"
-st.subheader('Regresión Lineal entre Streams y Danceability')
-st.write("A continuación, se muestra una regresión lineal que analiza la relación entre el número de streams y el porcentaje de danceability de las canciones.")
+# Regresión Lineal entre "streams" y "in_spotify_playlists"
+st.subheader('Regresión Lineal entre Streams y Popularidad en Playlists')
+st.write("A continuación, se muestra una regresión lineal que analiza la relación entre el número de streams y el número de playlists en las que aparece cada canción.")
 
-if pd.api.types.is_numeric_dtype(limited_data['streams']) and pd.api.types.is_numeric_dtype(limited_data['danceability_%']):
-    plot_and_show(limited_data, 'danceability_%', 'streams', 'Regresión Lineal entre Danceability y Streams', 'Danceability (%)', 'Streams', 'scatter', 'blue', add_regression=True, description='Este gráfico muestra la relación entre el porcentaje de danceability y el número de streams. La línea roja representa la regresión lineal, y el valor $R^2$ indica qué tan bien se ajusta el modelo a los datos.')
+if pd.api.types.is_numeric_dtype(limited_data['streams']) and pd.api.types.is_numeric_dtype(limited_data['in_spotify_playlists']):
+    plot_and_show(limited_data, 'in_spotify_playlists', 'streams', 'Regresión Lineal entre Popularidad en Playlists y Streams', 'Número de Playlists', 'Streams', 'scatter', 'blue', add_regression=True, description='Este gráfico muestra la relación entre el número de playlists en las que aparece cada canción y el número de streams. La línea roja representa la regresión lineal, y el valor $R^2$ indica qué tan bien se ajusta el modelo a los datos.')
 else:
-    st.error("Las columnas 'streams' y 'danceability_%' deben contener datos numéricos.")
+    st.error("Las columnas 'streams' y 'in_spotify_playlists' deben contener datos numéricos.")

@@ -28,14 +28,13 @@ try:
     # Limpiar los nombres de las columnas
     data.columns = data.columns.str.strip()
 
-    # Mostrar el limitador de datos
+    # Limitar el número de filas para evitar sobrecarga
     st.sidebar.header('Opciones de Datos')
     num_rows = st.sidebar.slider('Número de filas para mostrar', min_value=10, max_value=100, value=30)
     
-    # Limitar el número de filas para evitar sobrecarga
     limited_data = data.head(num_rows)
 
-    # Mostrar las primeras filas del dataset
+    # Mostrar el limitador de datos debajo del título
     st.write(f"Mostrando las primeras {num_rows} filas del dataset:")
     st.write(limited_data)
 
@@ -97,9 +96,9 @@ try:
 
     # Gráfico de regresión lineal personalizada
     st.subheader('Regresión Lineal Personalizada')
-    st.write("Selecciona dos columnas para realizar una regresión lineal y ver la relación entre ellas.")
+    st.write("Selecciona dos columnas numéricas para realizar una regresión lineal y ver la relación entre ellas.")
 
-    columnas = limited_data.columns.tolist()
+    columnas = limited_data.select_dtypes(include=[np.number]).columns.tolist()
     x_col = st.selectbox('Selecciona la columna X', columnas)
     y_col = st.selectbox('Selecciona la columna Y', columnas)
 

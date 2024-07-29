@@ -28,11 +28,16 @@ try:
     # Limpiar los nombres de las columnas
     data.columns = data.columns.str.strip()
 
-    # Mostrar las primeras filas del dataset
-    st.write(data.head())
-
+    # Mostrar el limitador de datos
+    st.sidebar.header('Opciones de Datos')
+    num_rows = st.sidebar.slider('Número de filas para mostrar', min_value=10, max_value=100, value=30)
+    
     # Limitar el número de filas para evitar sobrecarga
-    limited_data = data.head(30)
+    limited_data = data.head(num_rows)
+
+    # Mostrar las primeras filas del dataset
+    st.write(f"Mostrando las primeras {num_rows} filas del dataset:")
+    st.write(limited_data)
 
     # Función para graficar y mostrar gráficos en Streamlit
     def plot_and_show(data, x, y, title, xlabel, ylabel, plot_type='line', color='blue', add_regression=False, description=''):

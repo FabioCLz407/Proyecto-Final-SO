@@ -20,14 +20,23 @@ if archivo_csv:
         # Limpiar los nombres de las columnas
         data.columns = data.columns.str.strip()
 
+        # Convertir columnas específicas a valores numéricos
+        columns_to_convert = ['released_year', 'released_month', 'released_day', 'in_spotify_playlists', 
+                              'in_spotify_charts', 'streams', 'in_apple_playlists', 'bpm', 'key', 'mode', 
+                              'danceability_%', 'valence_%', 'energy_%', 'acousticness_%', 'instrumentalness_%', 
+                              'liveness_%', 'speechiness_%']
+        
+        for column in columns_to_convert:
+            data[column] = pd.to_numeric(data[column], errors='coerce')
+
+        # Eliminar filas con valores NaN
+        data = data.dropna()
+
         # Mostrar las primeras filas del dataset
         st.write(data.head())
 
         # Seleccionar las características y la variable objetivo
-        features = data[['released_year', 'released_month', 'released_day', 'in_spotify_playlists', 
-                         'in_spotify_charts', 'streams', 'in_apple_playlists', 'bpm', 'key', 'mode', 
-                         'danceability_%', 'valence_%', 'energy_%', 'acousticness_%', 'instrumentalness_%', 
-                         'liveness_%', 'speechiness_%']]
+        features = data[columns_to_convert]
         target = data['streams']
 
         # Dividir los datos en conjunto de entrenamiento y prueba

@@ -31,7 +31,11 @@ if archivo_csv:
         limited_data = data.head(limit)
         st.write(limited_data)
 
-        # Función para graficar y mostrar gráficos en Streamlit
+        # Seleccionar columnas para la regresión lineal
+        st.sidebar.subheader('Regresión Lineal')
+        x_col = st.sidebar.selectbox('Selecciona la columna para el eje X', numeric_cols)
+        y_col = st.sidebar.selectbox('Selecciona la columna para el eje Y', numeric_cols)
+
         def plot_and_show(data, x, y, title, xlabel, ylabel, plot_type='line', color='blue', add_regression=False):
             plt.figure(figsize=(18, 8))  # Ajustar tamaño de la figura
             if plot_type == 'line':
@@ -64,16 +68,19 @@ if archivo_csv:
                     X = X.loc[common_indices]
                     Y = Y.loc[common_indices]
                     
-                    model = LinearRegression()
-                    model.fit(X, Y)
-                    predictions = model.predict(X)
-                    r2 = r2_score(Y, predictions)
-                    
-                    # Graficar línea de regresión
-                    sns.regplot(x=x, y=y, data=data, scatter=False, color='red')
-                    
-                    # Mostrar \( R^2 \)
-                    plt.title(f'{title}\n$R^2 = {r2:.2f}$')
+                    if len(X) > 1:  # Asegurarse de que hay suficientes datos para ajustar el modelo
+                        model = LinearRegression()
+                        model.fit(X, Y)
+                        predictions = model.predict(X)
+                        r2 = r2_score(Y, predictions)
+                        
+                        # Graficar línea de regresión
+                        sns.regplot(x=x, y=y, data=data, scatter=False, color='red')
+                        
+                        # Mostrar \( R^2 \)
+                        plt.title(f'{title}\n$R^2 = {r2:.2f}$')
+                    else:
+                        plt.title(f'{title}\nNo hay suficientes datos para calcular R^2')
                 else:
                     plt.title(title)
                     
@@ -83,32 +90,10 @@ if archivo_csv:
             st.pyplot(plt.gcf())
             plt.close()
 
-        # Gráfico de Streams a lo largo de las canciones (Barras)
-        plot_and_show(limited_data, 'track_name', 'streams', 'Número de Streams por Canción', 'Canción', 'Número de Streams', 'bar', 'coral')
-
-        # Gráfico de Popularidad en Playlists de Spotify (Barras)
-        plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Popularidad en Playlists de Spotify', 'Canción', 'Número de Playlists', 'bar', 'orange')
-
-        # Gráfico de Danceability de Spotify (Líneas)
-        plot_and_show(limited_data, 'track_name', 'danceability_%', 'Danceability de Spotify por Canción', 'Canción', 'Danceability (%)', 'line', 'purple')
-
-        # Gráfico de Energy de Spotify (Líneas)
-        plot_and_show(limited_data, 'track_name', 'energy_%', 'Energía de Spotify por Canción', 'Canción', 'Energía (%)', 'line', 'blue')
-
-        # Gráfico de Valence de Spotify (Líneas)
-        plot_and_show(limited_data, 'track_name', 'valence_%', 'Valence de Spotify por Canción', 'Canción', 'Valence (%)', 'line', 'green')
-
-        # Gráfico de distribución de Streams (Torta)
-        st.subheader('Distribución de Streams')
-        plot_and_show(limited_data, 'track_name', 'streams', 'Distribución de Streams', 'Canción', 'Número de Streams', 'pie', sns.color_palette("viridis"))
-
-        # Gráfico de distribución de Popularidad en Playlists (Torta)
-        st.subheader('Distribución de Popularidad en Playlists')
-        plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Distribución de Popularidad en Playlists', 'Canción', 'Número de Playlists', 'pie', sns.color_palette("magma"))
-
-        # Gráfico de relación lineal entre streams y danceability
-        st.subheader('Relación entre Streams y Danceability')
-        plot_and_show(limited_data, 'streams', 'danceability_%', 'Relación entre Streams y Danceability', 'Número de Streams', 'Danceability (%)', 'scatter', 'cyan', True)
+        # Gráfico de relación lineal entre columnas seleccionadas
+        if x_col and y_col:
+            st.subheader(f'Relación entre {x_col} y {y_col}')
+            plot_and_show(limited_data, x_col, y_col, f'Relación entre {x_col} y {y_col}', x_col, y_col, 'scatter', 'cyan', True)
 
     except pd.errors.EmptyDataError:
         st.error("El archivo está vacío. Por favor, verifique el contenido del archivo.")

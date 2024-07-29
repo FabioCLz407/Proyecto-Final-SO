@@ -12,7 +12,7 @@ archivo_csv = st.file_uploader("Sube tu archivo CSV", type="csv")
 if archivo_csv:
     try:
         # Cargar los datos con encoding y manejo de errores
-        data = pd.read_csv(archivo_csv, encoding='utf-8', error_bad_lines=False, warn_bad_lines=True)
+        data = pd.read_csv(archivo_csv, encoding='utf-8', on_bad_lines='skip')
 
         # Limpiar los nombres de las columnas
         data.columns = data.columns.str.strip()

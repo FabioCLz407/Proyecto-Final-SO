@@ -58,6 +58,12 @@ if archivo_csv:
                     # Ajuste de regresión lineal
                     X = data[[x]].dropna()
                     Y = data[[y]].dropna()
+                    
+                    # Asegurarse de que X y Y tienen el mismo tamaño
+                    common_indices = X.index.intersection(Y.index)
+                    X = X.loc[common_indices]
+                    Y = Y.loc[common_indices]
+                    
                     model = LinearRegression()
                     model.fit(X, Y)
                     predictions = model.predict(X)

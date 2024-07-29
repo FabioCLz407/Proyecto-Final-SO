@@ -2,6 +2,8 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
 
 # Configuración de Streamlit
 st.title('Análisis de Datos de Spotify 2023')
@@ -51,16 +53,27 @@ if archivo_csv:
                 ax[0].invert_yaxis()
             elif plot_type == 'scatter':
                 sns.scatterplot(x=x, y=y, data=data, color=color)
+                
                 if add_regression:
+                    # Ajuste de regresión lineal
+                    X = data[[x]].dropna()
+                    Y = data[[y]].dropna()
+                    model = LinearRegression()
+                    model.fit(X, Y)
+                    predictions = model.predict(X)
+                    r2 = r2_score(Y, predictions)
+                    
+                    # Graficar línea de regresión
                     sns.regplot(x=x, y=y, data=data, scatter=False, color='red')
-                plt.title(title)
+                    
+                    # Mostrar \( R^2 \)
+                    plt.title(f'{title}\n$R^2 = {r2:.2f}$')
+                else:
+                    plt.title(title)
+                    
                 plt.xlabel(xlabel)
                 plt.ylabel(ylabel)
                 plt.grid(True)
-            plt.xlabel(xlabel)
-            plt.ylabel(ylabel)
-            plt.xticks(rotation=90)
-            plt.grid(True)
             st.pyplot(plt.gcf())
             plt.close()
 

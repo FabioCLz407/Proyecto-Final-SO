@@ -41,11 +41,18 @@ try:
     # Convertir columnas a numéricas si es necesario
     limited_data['streams'] = pd.to_numeric(limited_data['streams'], errors='coerce')
     limited_data['in_spotify_playlists'] = pd.to_numeric(limited_data['in_spotify_playlists'], errors='coerce')
+    limited_data['danceability_%'] = pd.to_numeric(limited_data['danceability_%'], errors='coerce')
+    limited_data['energy_%'] = pd.to_numeric(limited_data['energy_%'], errors='coerce')
+    limited_data['valence_%'] = pd.to_numeric(limited_data['valence_%'], errors='coerce')
 
     # Función para graficar y mostrar gráficos en Streamlit
     def plot_and_show(data, x, y, title, xlabel, ylabel, plot_type='line', color='blue', add_regression=False, description=''):
         plt.figure(figsize=(12, 8))
-        if plot_type == 'scatter':
+        if plot_type == 'line':
+            sns.lineplot(x=x, y=y, data=data, color=color)
+        elif plot_type == 'bar':
+            sns.barplot(x=x, y=y, data=data, color=color)
+        elif plot_type == 'scatter':
             sns.scatterplot(x=x, y=y, data=data, color=color)
             if add_regression:
                 x_values = data[x].values.reshape(-1, 1)
@@ -56,6 +63,15 @@ try:
                 r2 = r2_score(y_values, y_pred)
                 plt.plot(data[x], y_pred, color='red')
                 plt.text(0.05, 0.95, f'$R^2$: {r2:.2f}', transform=plt.gca().transAxes, fontsize=12, verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.5))
+        elif plot_type == 'pie':
+            data_to_plot = data.groupby(x)[y].sum().reset_index()
+            fig, ax = plt.subplots(figsize=(10, 6))
+            wedges, texts, autotexts = ax.pie(data_to_plot[y], labels=data_to_plot[x], autopct='%1.1f%%', colors=color)
+            ax.legend(wedges, data_to_plot[x], title=x, loc='center left', bbox_to_anchor=(1, 0, 0.5, 1))
+            plt.title(title)
+            plt.axis('equal')
+            st.pyplot(fig)
+            return
         plt.title(title)
         plt.xlabel(xlabel)
         plt.ylabel(ylabel)
@@ -66,6 +82,24 @@ try:
 
         # Añadir descripción
         st.write(description)
+
+    # Gráfico de Streams a lo largo de las canciones (Barras)
+    plot_and_show(limited_data, 'track_name', 'streams', 'Distribución de Streams por Canción', 'Canción', 'Streams', 'bar', 'coral', description='Este gráfico muestra la distribución del número de streams para cada canción. Las canciones con más streams están representadas con barras más altas.')
+
+    # Gráfico de Popularidad en Playlists a lo largo de las canciones (Barras)
+    plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Distribución de Popularidad en Playlists', 'Canción', 'Número de Playlists', 'bar', 'orange', description='Este gráfico muestra el número de playlists de Spotify en las que cada canción aparece. Las canciones más populares en playlists tienen barras más altas.')
+
+    # Gráfico de Danceability de Spotify a lo largo de las canciones (Líneas)
+    plot_and_show(limited_data, 'track_name', 'danceability_%', 'Distribución de Danceability por Canción', 'Canción', 'Danceability (%)', 'line', 'purple', description='Este gráfico muestra el porcentaje de danceability para cada canción. Las canciones con mayor danceability tienen valores más altos.')
+
+    # Gráfico de Energy de Spotify a lo largo de las canciones (Líneas)
+    plot_and_show(limited_data, 'track_name', 'energy_%', 'Distribución de Energy por Canción', 'Canción', 'Energy (%)', 'line', 'blue', description='Este gráfico muestra el porcentaje de energía para cada canción. Las canciones con mayor energía tienen valores más altos.')
+
+    # Gráfico de Valence de Spotify a lo largo de las canciones (Líneas)
+    plot_and_show(limited_data, 'track_name', 'valence_%', 'Distribución de Valence por Canción', 'Canción', 'Valence (%)', 'line', 'green', description='Este gráfico muestra el porcentaje de valence para cada canción. Las canciones con mayor valence tienen valores más altos.')
+
+    # Gráfico de torta para Popularidad en Playlists
+    plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Distribución de Popularidad en Playlists', 'Canción', 'Número de Playlists', 'pie', sns.color_palette("plasma"), description='Este gráfico de torta muestra la proporción de cada canción en las playlists de Spotify. Las canciones más representadas en playlists tienen porciones más grandes.')
 
     # Regresión Lineal entre "streams" y "in_spotify_playlists"
     st.subheader('Regresión Lineal entre Streams y Popularidad en Playlists')

@@ -12,7 +12,7 @@ from io import StringIO
 st.title('Análisis de Datos de Spotify 2023')
 
 # URL del archivo CSV
-url = 'https://enlace-a-tu-archivo.csv'  # Reemplaza con el enlace a tu archivo CSV
+url = 'https://drive.google.com/file/d/18EWnM90OV5zUTzJRvUtXnM7qrFibKAxO/view?usp=drive_link'  # Reemplaza con el enlace a tu archivo CSV
 
 @st.cache_data
 def load_data(url):

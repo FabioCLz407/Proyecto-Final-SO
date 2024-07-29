@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Configuración de Streamlit
-st.title('Análisis de Datos de Spotify y YouTube')
+st.title('Análisis de Datos de Spotify 2023')
 
 # Cargar el archivo CSV usando el cargador de archivos de Streamlit
 archivo_csv = st.file_uploader("Sube tu archivo CSV", type="csv")
@@ -12,7 +12,7 @@ archivo_csv = st.file_uploader("Sube tu archivo CSV", type="csv")
 if archivo_csv:
     try:
         # Cargar los datos con encoding y manejo de errores
-        data = pd.read_csv(archivo_csv, encoding='utf-8', on_bad_lines='skip')
+        data = pd.read_csv(archivo_csv, encoding='latin1', on_bad_lines='skip')
 
         # Limpiar los nombres de las columnas
         data.columns = data.columns.str.strip()
@@ -35,23 +35,20 @@ if archivo_csv:
             st.pyplot(plt.gcf())
             plt.close()
 
-        # Gráfico de Visualizaciones de YouTube a lo largo de las canciones (Barras)
-        plot_and_show(data, 'Track', 'Views', 'YouTube Views per Track', 'Track', 'Views', 'bar', 'coral')
+        # Gráfico de Streams a lo largo de las canciones (Barras)
+        plot_and_show(data, 'track_name', 'streams', 'Spotify Streams per Track', 'Track', 'Streams', 'bar', 'coral')
 
-        # Gráfico de Likes de YouTube a lo largo de las canciones (Barras)
-        plot_and_show(data, 'Track', 'Likes', 'YouTube Likes per Track', 'Track', 'Likes', 'bar', 'orange')
-
-        # Gráfico de Comentarios de YouTube a lo largo de las canciones (Barras)
-        plot_and_show(data, 'Track', 'Comments', 'YouTube Comments per Track', 'Track', 'Comments', 'bar', 'green')
-
-        # Gráfico de Streams de Spotify a lo largo de las canciones (Líneas)
-        plot_and_show(data, 'Track', 'Stream', 'Spotify Streams per Track', 'Track', 'Streams', 'line', 'teal')
+        # Gráfico de Popularidad de YouTube a lo largo de las canciones (Barras)
+        plot_and_show(data, 'track_name', 'in_spotify_playlists', 'Popularity in Spotify Playlists', 'Track', 'Playlists', 'bar', 'orange')
 
         # Gráfico de Danceability de Spotify a lo largo de las canciones (Líneas)
-        plot_and_show(data, 'Track', 'Danceability', 'Spotify Danceability per Track', 'Track', 'Danceability', 'line', 'purple')
+        plot_and_show(data, 'track_name', 'danceability_%', 'Spotify Danceability per Track', 'Track', 'Danceability (%)', 'line', 'purple')
 
         # Gráfico de Energy de Spotify a lo largo de las canciones (Líneas)
-        plot_and_show(data, 'Track', 'Energy', 'Spotify Energy per Track', 'Track', 'Energy', 'line', 'blue')
+        plot_and_show(data, 'track_name', 'energy_%', 'Spotify Energy per Track', 'Track', 'Energy (%)', 'line', 'blue')
+
+        # Gráfico de Valence de Spotify a lo largo de las canciones (Líneas)
+        plot_and_show(data, 'track_name', 'valence_%', 'Spotify Valence per Track', 'Track', 'Valence (%)', 'line', 'green')
 
     except pd.errors.EmptyDataError:
         st.error("El archivo está vacío. Por favor, verifique el contenido del archivo.")

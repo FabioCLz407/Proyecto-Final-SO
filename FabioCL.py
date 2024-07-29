@@ -32,7 +32,7 @@ if archivo_csv:
         st.write(limited_data)
 
         # Función para graficar y mostrar gráficos en Streamlit
-        def plot_and_show(data, x, y, title, xlabel, ylabel, plot_type='line', color='blue', add_regression=False):
+        def plot_and_show(data, x, y, title, xlabel, ylabel, plot_type='line', color='blue', add_regression=False, description=None):
             plt.figure(figsize=(18, 8))  # Ajustar tamaño de la figura
             if plot_type == 'line':
                 sns.lineplot(x=x, y=y, data=data, color=color)
@@ -83,30 +83,47 @@ if archivo_csv:
                 plt.xlabel(xlabel)
                 plt.ylabel(ylabel)
                 plt.grid(True)
+            
+            # Agregar descripción si se proporciona
+            if description:
+                plt.figtext(0.5, -0.1, description, wrap=True, horizontalalignment='center', fontsize=12)
+                
             st.pyplot(plt.gcf())
             plt.close()
 
         # Gráfico de Streams a lo largo de las canciones (Barras)
+        st.subheader('Número de Streams por Canción')
+        st.write("Este gráfico muestra el número total de streams para cada canción. Es útil para ver qué canciones han sido más populares en términos de streams.")
         plot_and_show(limited_data, 'track_name', 'streams', 'Número de Streams por Canción', 'Canción', 'Número de Streams', 'bar', 'coral')
 
         # Gráfico de Popularidad en Playlists de Spotify (Barras)
+        st.subheader('Popularidad en Playlists de Spotify')
+        st.write("Este gráfico muestra la popularidad de cada canción en las playlists de Spotify. Permite ver cuáles canciones han sido incluidas en más playlists.")
         plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Popularidad en Playlists de Spotify', 'Canción', 'Número de Playlists', 'bar', 'orange')
 
         # Gráfico de Danceability de Spotify (Líneas)
+        st.subheader('Danceability de Spotify por Canción')
+        st.write("Este gráfico muestra el porcentaje de 'danceability' para cada canción, que indica qué tan bailables son las canciones según Spotify.")
         plot_and_show(limited_data, 'track_name', 'danceability_%', 'Danceability de Spotify por Canción', 'Canción', 'Danceability (%)', 'line', 'purple')
 
         # Gráfico de Energy de Spotify (Líneas)
+        st.subheader('Energía de Spotify por Canción')
+        st.write("Este gráfico muestra el porcentaje de 'energy' para cada canción, que mide la energía que transmite la canción según Spotify.")
         plot_and_show(limited_data, 'track_name', 'energy_%', 'Energía de Spotify por Canción', 'Canción', 'Energía (%)', 'line', 'blue')
 
         # Gráfico de Valence de Spotify (Líneas)
+        st.subheader('Valence de Spotify por Canción')
+        st.write("Este gráfico muestra el porcentaje de 'valence' para cada canción, que indica el estado de ánimo general de la canción según Spotify.")
         plot_and_show(limited_data, 'track_name', 'valence_%', 'Valence de Spotify por Canción', 'Canción', 'Valence (%)', 'line', 'green')
 
         # Gráfico de distribución de Streams (Torta)
         st.subheader('Distribución de Streams')
+        st.write("Este gráfico de torta muestra la distribución de streams entre diferentes canciones. Permite visualizar qué canciones tienen una mayor proporción de streams.")
         plot_and_show(limited_data, 'track_name', 'streams', 'Distribución de Streams', 'Canción', 'Número de Streams', 'pie', sns.color_palette("viridis"))
 
         # Gráfico de distribución de Popularidad en Playlists (Torta)
         st.subheader('Distribución de Popularidad en Playlists')
+        st.write("Este gráfico de torta muestra la distribución de la popularidad en playlists entre diferentes canciones. Ayuda a identificar las canciones que tienen una mayor representación en las playlists.")
         plot_and_show(limited_data, 'track_name', 'in_spotify_playlists', 'Distribución de Popularidad en Playlists', 'Canción', 'Número de Playlists', 'pie', sns.color_palette("magma"))
 
         # Seleccionar columnas para la regresión lineal
@@ -117,6 +134,7 @@ if archivo_csv:
         # Gráfico de relación lineal entre columnas seleccionadas
         if x_col and y_col:
             st.subheader(f'Relación entre {x_col} y {y_col}')
+            st.write(f"Este gráfico muestra la relación entre {x_col} y {y_col}. La línea de regresión lineal se ajusta a los datos y el porcentaje de ajuste (R^2) se muestra en el título.")
             plot_and_show(limited_data, x_col, y_col, f'Relación entre {x_col} y {y_col}', x_col, y_col, 'scatter', 'cyan', True)
 
     except pd.errors.EmptyDataError:

@@ -20,61 +20,74 @@ if archivo_csv:
         # Limpiar los nombres de las columnas
         data.columns = data.columns.str.strip()
 
-        # Convertir columnas específicas a valores numéricos
-        columns_to_convert = ['released_year', 'released_month', 'released_day', 'in_spotify_playlists', 
-                              'in_spotify_charts', 'streams', 'in_apple_playlists', 'bpm', 'key', 'mode', 
-                              'danceability_%', 'valence_%', 'energy_%', 'acousticness_%', 'instrumentalness_%', 
-                              'liveness_%', 'speechiness_%']
-        
-        for column in columns_to_convert:
-            data[column] = pd.to_numeric(data[column], errors='coerce')
+        # Verifica el tamaño del conjunto de datos
+        if len(data) < 5:
+            st.error("El conjunto de datos es demasiado pequeño para realizar la división en conjuntos de entrenamiento y prueba.")
+        else:
+            # Convertir columnas específicas a valores numéricos
+            columns_to_convert = ['released_year', 'released_month', 'released_day', 'in_spotify_playlists', 
+                                  'in_spotify_charts', 'streams', 'in_apple_playlists', 'bpm', 'key', 'mode', 
+                                  'danceability_%', 'valence_%', 'energy_%', 'acousticness_%', 'instrumentalness_%', 
+                                  'liveness_%', 'speechiness_%']
+            
+            # Verifica si las columnas necesarias están presentes
+            missing_columns = [col for col in columns_to_convert if col not in data.columns]
+            if missing_columns:
+                st.error(f"Las siguientes columnas están faltando en el archivo CSV: {', '.join(missing_columns)}")
+            else:
+                for column in columns_to_convert:
+                    data[column] = pd.to_numeric(data[column], errors='coerce')
 
-        # Eliminar filas con valores NaN
-        data = data.dropna()
+                # Eliminar filas con valores NaN
+                data = data.dropna()
 
-        # Mostrar las primeras filas del dataset
-        st.write(data.head())
+                # Verifica si la columna 'streams' está presente
+                if 'streams' not in data.columns:
+                    st.error("La columna 'streams' no se encuentra en el archivo CSV.")
+                else:
+                    # Mostrar las primeras filas del dataset
+                    st.write(data.head())
 
-        # Seleccionar las características y la variable objetivo
-        features = data[columns_to_convert]
-        target = data['streams']
+                    # Seleccionar las características y la variable objetivo
+                    features = data[columns_to_convert]
+                    target = data['streams']
 
-        # Dividir los datos en conjunto de entrenamiento y prueba
-        X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.2, random_state=42)
+                    # Dividir los datos en conjunto de entrenamiento y prueba
+                    X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.2, random_state=42)
 
-        # Entrenar el modelo de Random Forest
-        model = RandomForestRegressor(n_estimators=100, random_state=42)
-        model.fit(X_train, y_train)
+                    # Entrenar el modelo de Random Forest
+                    model = RandomForestRegressor(n_estimators=100, random_state=42)
+                    model.fit(X_train, y_train)
 
-        # Realizar predicciones
-        predictions = model.predict(X_test)
+                    # Realizar predicciones
+                    predictions = model.predict(X_test)
 
-        # Calcular el error cuadrático medio
-        mse = mean_squared_error(y_test, predictions)
-        st.write(f"Error cuadrático medio (MSE): {mse}")
+                    # Calcular el error cuadrático medio
+                    mse = mean_squared_error(y_test, predictions)
+                    st.write(f"Error cuadrático medio (MSE): {mse}")
 
-        # Importancia de las características
-        feature_importances = model.feature_importances_
-        features_names = features.columns
-        importance_df = pd.DataFrame({'Feature': features_names, 'Importance': feature_importances})
-        importance_df = importance_df.sort_values(by='Importance', ascending=False)
+                    # Importancia de las características
+                    feature_importances = model.feature_importances_
+                    features_names = features.columns
+                    importance_df = pd.DataFrame({'Feature': features_names, 'Importance': feature_importances})
+                    importance_df = importance_df.sort_values(by='Importance', ascending=False)
 
-        # Visualización de la importancia de las características
-        plt.figure(figsize=(10, 6))
-        sns.barplot(x='Importance', y='Feature', data=importance_df)
-        plt.title('Importancia de las características')
-        st.pyplot(plt.gcf())
-        plt.close()
+                    # Visualización de la importancia de las características
+                    plt.figure(figsize=(10, 6))
+                    sns.barplot(x='Importance', y='Feature', data=importance_df)
+                    plt.title('Importancia de las características')
+                    st.pyplot(plt.gcf())
+                    plt.close()
 
-        # Visualización de las predicciones vs valores reales
-        plt.figure(figsize=(10, 6))
-        plt.scatter(y_test, predictions, alpha=0.5)
-        plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=2)
-        plt.xlabel('Valores reales')
-        plt.ylabel('Predicciones')
-        plt.title('Predicciones vs Valores reales')
-        st.pyplot(plt.gcf())
-        plt.close()
+                    # Visualización de las predicciones vs valores reales
+                    plt.figure(figsize=(10, 6))
+                    plt.scatter(y_test, predictions, alpha=0.5)
+                    plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], 'k--', lw=2)
+                    plt.xlabel('Valores reales')
+                    plt.ylabel('Predicciones')
+                    plt.title('Predicciones vs Valores reales')
+                    st.pyplot(plt.gcf())
+                    plt.close()
 
     except pd.errors.EmptyDataError:
         st.error("El archivo está vacío. Por favor, verifique el contenido del archivo.")
